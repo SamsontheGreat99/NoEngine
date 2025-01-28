@@ -59,9 +59,36 @@ internal void RenderWeirdGradient(game_offscreen_buffer* Buffer, int XOffset, in
 	}
 }
 
-internal void GameUpdateAndRender(game_offscreen_buffer* Buffer, int XOffset, int YOffset, game_sound_output_buffer *SoundBuffer, int ToneHz)
+
+
+internal void GameUpdateAndRender(game_input *Input, game_offscreen_buffer* Buffer, game_sound_output_buffer *SoundBuffer)
 {
-	//TODO(Sam):  Allow Sample offsets her for more robust platform options
+	local_persist int XOffset = 0;
+	local_persist int YOffset = 0;
+	local_persist int ToneHz = 256;
+	
+	game_controller_input *Input0 = &Input->Controllers[0];
+	if(Input0->IsAnalog)
+	{
+		//TODO(Sam): Use Analog movement tuning
+		ToneHz = 256 + (int)(128.0f*(Input0->EndX));
+		XOffset += (int)4.0f*(Input0->EndY);
+	}
+	else
+	{
+		//TODO(Sam): Use Digital movement tuning
+	}
+
+	//Input.AButtonEndedDown;
+	//Input.AButtonHalfTransitionCount;
+	if(Input0->Down.EndedDown)
+	{
+		YOffset += 1;
+	}
+
+
+
+	//TODO(Sam):  Allow Sample offsets here for more robust platform options
 	GameOutputSound(SoundBuffer, ToneHz);
 	RenderWeirdGradient(Buffer, XOffset, YOffset);
 }

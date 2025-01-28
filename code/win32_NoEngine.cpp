@@ -57,27 +57,11 @@ typedef double real64;
 //TODO(Sam): Implement Sine ourselves
 #include <math.h>
 
-
+#include "win32_NoEngine.h"
 
 
 
 // We took our global variables and turned them into a struct so that now we can actually have as many buffers as we want
-struct win32_offscreen_buffer
-{
- BITMAPINFO Info;
- void *Memory;
- int Width;
- int Height;
- int Pitch;
- int BytesPerPixel;
-};
-
-struct win32_window_dimensions
-{
-	int Width;
-	int Height;
-};
-
 /*
 	Input code chunk below allows us to add controller state support without linking to xinput.lib
 	We are also intializing the global vairable pointers to stub functions so they don't crash the game on startup
@@ -406,17 +390,7 @@ internal LRESULT CALLBACK Win32MainWindowCallback(HWND Window, UINT Message, WPA
 
 }
 
-struct win32_sound_output {
-	int SamplesPerSecond;
-	int ToneHz;
-	int16 ToneVolume;
-	uint32 RunningSampleIndex;
-	int WavePeriod;
-	int BytesPerSample;
-	int SecondaryBufferSize;
-	real32 tSine;
-	int LatencySampleCount;
-};
+
 
 internal void Win32ClearBuffer(win32_sound_output* SoundOutput)
 {
@@ -583,17 +557,11 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CommandLi
 			// NOTE(Sam): we specifiec CS_OWNDC so we just get our device context and use it forever
 			HDC DeviceContext = GetDC(Window);
 
-			// NOTE(Sam): Graphics Test
-			int XOffset = 0;
-			int YOffset = 0;
 
 			// NOTE(Sam): Sound Test | Maybe we should make this buffer longer than a second, if the game were to stall for longer than our buffer that would be bad
 			win32_sound_output SoundOutput = {};
 			SoundOutput.SamplesPerSecond = 48000;
-			SoundOutput.ToneHz = 256;
-			SoundOutput.ToneVolume = 3000;
 			SoundOutput.RunningSampleIndex = 0;
-			SoundOutput.WavePeriod = SoundOutput.SamplesPerSecond / SoundOutput.ToneHz;
 			SoundOutput.BytesPerSample = sizeof(int16) * 2;
 			SoundOutput.SecondaryBufferSize = SoundOutput.SamplesPerSecond * SoundOutput.BytesPerSample;
 			SoundOutput.LatencySampleCount = SoundOutput.SamplesPerSecond / 15;
@@ -615,6 +583,9 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CommandLi
 			{
 				// Message is scoped inside while(Running) to keep anyone outside the loop from accidentally messing with it (lexical scoping)
 				MSG Message;
+			
+				game_input Input = {};
+
 				while(PeekMessage(&Message, 0, 0, 0, PM_REMOVE)) // Looking at all the messages Windows is sending us
 				{
 					if(Message.message == WM_QUIT) // checking to see if it was a quit message, so that we can tell the application to quit
@@ -655,11 +626,7 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CommandLi
 						int16 StickY = Pad->sThumbLY;
 
 						//TODO(Sam): Implement proper deadzone handling later using xinput values
-						XOffset += StickX / 4096;
-						YOffset += StickY / 4096;
 
-						SoundOutput.ToneHz = 512 + (int)(256.0f * ((real32)StickY / 30000.0f));
-						SoundOutput.WavePeriod = SoundOutput.SamplesPerSecond / SoundOutput.ToneHz;
 					}
 					else
 					{
@@ -707,9 +674,9 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CommandLi
 				Buffer.Width = GlobalBackBuffer.Width;
 				Buffer.Height = GlobalBackBuffer.Height;
 				Buffer.Pitch = GlobalBackBuffer.Pitch;
-				GameUpdateAndRender(&Buffer,XOffset, YOffset, &SoundBuffer, SoundOutput.ToneHz); //TODO(Sam): This is where we do our update and render logic (right before we actually render)
+				GameUpdateAndRender(&Input, &Buffer, &SoundBuffer); //TODO(Sam): This is where we do our update and render logic (right before we actually render)
 
-				if (SoundIsValid)
+				if(SoundIsValid)
 				{
 					Win32FillSoundBuffer(&SoundOutput, ByteToLock, BytesToWrite, &SoundBuffer);
 				}
