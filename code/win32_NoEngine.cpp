@@ -605,7 +605,8 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CommandLi
 			GlobalRunning = true;
 
 			//TODO(Sam): Pool with bitmap alloc
-			int16* Samples = (int16*)VirtualAlloc(0, SoundOutput.SecondaryBufferSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			
+			int16 *Samples = (int16*)VirtualAlloc(0, SoundOutput.SecondaryBufferSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 			LARGE_INTEGER LastCounter;
 			QueryPerformanceCounter(&LastCounter);
