@@ -71,8 +71,8 @@ internal void GameUpdateAndRender(game_input *Input, game_offscreen_buffer* Buff
 	if(Input0->IsAnalog)
 	{
 		//TODO(Sam): Use Analog movement tuning
-		ToneHz = 256 + (int)(128.0f*(Input0->EndX));
-		XOffset += (int)4.0f*(Input0->EndY);
+		XOffset += (int)4.0f*(Input0->EndX);
+		ToneHz = 256 + (int)(128.0f*(Input0->EndY));
 	}
 	else
 	{

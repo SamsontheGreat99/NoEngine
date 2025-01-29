@@ -3,18 +3,13 @@
 
 /*
 /TODO(NOTE): This is how you could abstract the platform layer through a header like this
-
-struct platform_window;
-platform_window* PlatformOpenWindow(char* Title);
-void PlatformCloseWindow(platform_window* Window);
-
 */
 
 /*
 	TODO(Sam): Services that the game provides to the platform layer
 */
 
-
+#define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
 
 /*
 	TODO(Sam): Services that the game provides to the platform layer
@@ -42,7 +37,7 @@ struct game_sound_output_buffer
 
 struct game_button_state
 {
-	int HalfTransitionDown;
+	int HalfTransitionCount;
 	bool32 EndedDown;
 };
 struct game_controller_input
